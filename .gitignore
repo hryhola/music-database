@@ -1,3 +1,6 @@
 .DS_Store
 .env
+.venv/
+.cache/
 node_modules/
+__pycache__/

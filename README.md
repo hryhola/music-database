@@ -2,7 +2,7 @@
 
 A small static music-library database built from a normalized YouTube Music liked-songs export.
 
-The public page shows the cleaned artist/title catalog and keeps provenance links back to YouTube Music videos. Private auth files, cookies, raw browser exports, and API keys are not stored here.
+The public page shows the cleaned artist/title catalog, key/BPM metadata where available, and provenance links back to YouTube Music videos. Private auth files, cookies, raw browser exports, and API keys are not stored here.
 
 Tempo and key metadata powered by [GetSongBPM](https://getsongbpm.com/).
 
@@ -17,3 +17,9 @@ Expected public URL:
 ```text
 https://hryhola.github.io/music-database/
 ```
+
+## Data
+
+- `data/normalized_liked_songs.csv`: 1,995 normalized songs
+- `data/song_keys_getsongbpm.csv`: confident GetSongBPM key/BPM matches
+- `data/song_keys_getsongbpm_misses.csv`: not-found, low-confidence, or ambiguous GetSongBPM lookups

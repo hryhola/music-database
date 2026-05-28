@@ -204,7 +204,7 @@
         <div>
           <h1>Music Database</h1>
           <p>
-            A normalized catalog of liked songs prepared for musical-key and tempo enrichment.
+            A normalized catalog of liked songs enriched with musical key and tempo where available.
             Tempo and key metadata powered by <a href="https://getsongbpm.com/">GetSongBPM</a>.
           </p>
         </div>
@@ -222,7 +222,7 @@
       <section class="stats" aria-label="Catalog summary">
         <div class="stat"><strong id="total">0</strong><span>Total normalized songs</span></div>
         <div class="stat"><strong id="visible">0</strong><span>Visible after filters</span></div>
-        <div class="stat"><strong id="artists">0</strong><span>Unique artist strings</span></div>
+        <div class="stat"><strong id="matched">0</strong><span>Rows with key data</span></div>
         <div class="stat"><strong id="updated">-</strong><span>Generated UTC</span></div>
       </section>
 
@@ -232,9 +232,10 @@
             <tr>
               <th class="artist">Artist</th>
               <th class="title">Title</th>
+              <th class="meta">Key / BPM</th>
               <th class="album">Album</th>
               <th class="source">Source</th>
-              <th class="meta">Reason / Confidence</th>
+              <th class="meta">Match</th>
             </tr>
           </thead>
           <tbody id="rows">
@@ -252,8 +253,10 @@
 
     <script>
       const DATA_URL = "data/normalized_liked_songs.csv";
+      const KEYS_URL = "data/song_keys_getsongbpm.csv";
       const MANIFEST_URL = "data/normalization_manifest.json";
       let songs = [];
+      let keyRows = [];
       let manifest = null;
 
       function parseCsv(text) {
@@ -308,7 +311,7 @@
       function renderStats(visibleRows) {
         document.getElementById("total").textContent = songs.length.toLocaleString();
         document.getElementById("visible").textContent = visibleRows.length.toLocaleString();
-        document.getElementById("artists").textContent = new Set(songs.map((song) => song.normalized_artists)).size.toLocaleString();
+        document.getElementById("matched").textContent = songs.filter((song) => song.key_of).length.toLocaleString();
         document.getElementById("updated").textContent = manifest && manifest.generated_at
           ? manifest.generated_at.replace("T", " ").slice(0, 16)
           : "-";
@@ -353,9 +356,10 @@
           tr.innerHTML = `
             <td>${escapeHtml(song.normalized_artists)}</td>
             <td>${escapeHtml(song.normalized_title)}</td>
+            <td>${escapeHtml(song.key_of || "-")}<br>${escapeHtml(song.tempo ? `${song.tempo} BPM` : "")}</td>
             <td>${escapeHtml(song.album)}</td>
             <td><a href="${escapeAttr(song.video_url)}" target="_blank" rel="noreferrer">${escapeHtml(song.video_id)}</a></td>
-            <td>${escapeHtml(song.decision_reason)}<br>${escapeHtml(song.confidence)}</td>
+            <td>${escapeHtml(song.match_status || "missing")}<br>${escapeHtml(song.match_score || "")}</td>
           `;
           return tr;
         }));
@@ -374,13 +378,21 @@
         return escapeHtml(value).replaceAll("`", "&#096;");
       }
 
+      function mergeKeyRows(baseRows, rowsWithKeys) {
+        const byVideoId = new Map(rowsWithKeys.map((row) => [row.video_id, row]));
+        return baseRows.map((song) => ({ ...song, ...(byVideoId.get(song.video_id) || {}) }));
+      }
+
       async function boot() {
-        const [csvResponse, manifestResponse] = await Promise.all([
+        const [csvResponse, keysResponse, manifestResponse] = await Promise.all([
           fetch(DATA_URL),
+          fetch(KEYS_URL).catch(() => null),
           fetch(MANIFEST_URL).catch(() => null)
         ]);
 
-        songs = parseCsv(await csvResponse.text());
+        const normalizedRows = parseCsv(await csvResponse.text());
+        keyRows = keysResponse && keysResponse.ok ? parseCsv(await keysResponse.text()) : [];
+        songs = mergeKeyRows(normalizedRows, keyRows);
         manifest = manifestResponse && manifestResponse.ok ? await manifestResponse.json() : null;
         renderReasons();
         renderRows();
