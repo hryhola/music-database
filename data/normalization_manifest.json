@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-05-28T16:23:28.888799+00:00",
+  "input": "exports/liked_songs.csv",
+  "source_rows": 2809,
+  "kept_rows": 1995,
+  "skipped_rows": 814,
+  "review_rows": 0,
+  "review_decisions_applied": 196,
+  "agent_suggestions_loaded": 0
+}
