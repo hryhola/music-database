@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Music Database</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/css/tabulator_midnight.min.css">
+    <link rel="stylesheet" href="public/assets/styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min.js"></script>
+    <script defer src="public/assets/data.js"></script>
+    <script defer src="public/assets/catalog.js"></script>
+  </head>
+  <body data-page="catalog">
+    <header class="app-header">
+      <div class="wrap header-grid">
+        <div>
+          <p class="eyebrow">Music Database</p>
+          <h1>Catalog</h1>
+        </div>
+        <nav class="nav-tabs" aria-label="Primary">
+          <a class="active" href="index.html">Catalog</a>
+          <a href="stats.html">Stats</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap app-main">
+      <section class="metric-grid" aria-label="Catalog summary">
+        <div class="metric"><strong id="totalCount">0</strong><span>Total songs</span></div>
+        <div class="metric"><strong id="visibleCount">0</strong><span>Visible</span></div>
+        <div class="metric"><strong id="keyCount">0</strong><span>With key</span></div>
+        <div class="metric"><strong id="tempoCount">0</strong><span>With BPM</span></div>
+      </section>
+
+      <section class="control-panel" aria-label="Catalog filters">
+        <div class="control-row primary-controls">
+          <label class="field span-2">
+            <span>Search</span>
+            <input id="searchInput" type="search" placeholder="Artist, title, album, source" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Group</span>
+            <select id="groupSelect">
+              <option value="">None</option>
+              <option value="artist">Artist</option>
+              <option value="key">Key</option>
+              <option value="mode">Mode</option>
+              <option value="key_mode">Key + mode</option>
+              <option value="bpm_band">BPM band</option>
+            </select>
+          </label>
+          <button id="clearFilters" class="button secondary" type="button">Clear</button>
+          <button id="downloadFiltered" class="button" type="button">Download CSV</button>
+        </div>
+
+        <div class="control-row filter-grid">
+          <fieldset class="key-filter">
+            <legend>Key</legend>
+            <div id="keyFilter" class="chip-grid" aria-label="Key filter"></div>
+          </fieldset>
+
+          <fieldset class="mode-filter">
+            <legend>Mode</legend>
+            <div id="modeFilter" class="segmented" aria-label="Mode filter">
+              <button type="button" class="active" data-mode="">All</button>
+              <button type="button" data-mode="major">Major</button>
+              <button type="button" data-mode="minor">Minor</button>
+              <button type="button" data-mode="missing">Missing</button>
+            </div>
+          </fieldset>
+
+          <div class="bpm-controls">
+            <label class="field">
+              <span>BPM</span>
+              <input id="bpmTarget" type="number" inputmode="numeric" min="1" max="999" placeholder="100">
+            </label>
+            <label class="field">
+              <span>Margin</span>
+              <input id="bpmMargin" type="number" inputmode="numeric" min="0" max="999" value="0">
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-panel" aria-label="Songs">
+        <div id="catalogTable"></div>
+      </section>
+    </main>
+
+    <dialog id="detailsDialog" class="details-dialog">
+      <div class="dialog-head">
+        <div>
+          <p id="detailsArtist" class="eyebrow"></p>
+          <h2 id="detailsTitle">Song details</h2>
+        </div>
+        <button id="closeDetails" class="icon-button" type="button" aria-label="Close details">×</button>
+      </div>
+      <div id="detailsBody" class="details-body"></div>
+    </dialog>
+
+    <footer class="app-footer">
+      <div class="wrap">
+        Tempo and key metadata are powered by <a href="https://getsongbpm.com/" target="_blank" rel="noreferrer">GetSongBPM</a> plus manual Tunebat lookups for songs that could not be matched cleanly through the API.
+      </div>
+    </footer>
+  </body>
+</html>

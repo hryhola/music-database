@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Music Database Stats</title>
+    <link rel="stylesheet" href="public/assets/styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"></script>
+    <script defer src="public/assets/data.js"></script>
+    <script defer src="public/assets/stats.js"></script>
+  </head>
+  <body data-page="stats">
+    <header class="app-header">
+      <div class="wrap header-grid">
+        <div>
+          <p class="eyebrow">Music Database</p>
+          <h1>Stats</h1>
+        </div>
+        <nav class="nav-tabs" aria-label="Primary">
+          <a href="index.html">Catalog</a>
+          <a class="active" href="stats.html">Stats</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap app-main">
+      <section id="statsSummary" class="metric-grid wide" aria-label="Statistics summary"></section>
+
+      <section class="viz-grid">
+        <article class="viz-panel bubble-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Artists</h2>
+              <span>Circle size by song count</span>
+            </div>
+            <div class="zoom-controls" aria-label="Artist chart zoom controls">
+              <button id="bubbleZoomOut" class="icon-button small" type="button" aria-label="Zoom out" title="Zoom out">-</button>
+              <button id="bubbleZoomReset" class="icon-button small" type="button" aria-label="Reset zoom" title="Reset zoom">↺</button>
+              <button id="bubbleZoomIn" class="icon-button small" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+            </div>
+          </div>
+          <div class="bubble-layout">
+            <div id="artistBubble" class="bubble-chart" aria-label="Artist circle chart"></div>
+            <aside id="artistDetails" class="artist-details"></aside>
+          </div>
+        </article>
+
+        <article class="viz-panel">
+          <div class="panel-head"><h2>Keys</h2></div>
+          <div id="keyChart" class="chart"></div>
+        </article>
+
+        <article class="viz-panel">
+          <div class="panel-head"><h2>Mode</h2></div>
+          <div id="modeChart" class="chart"></div>
+        </article>
+
+        <article class="viz-panel">
+          <div class="panel-head"><h2>BPM</h2></div>
+          <div id="bpmChart" class="chart"></div>
+        </article>
+
+        <article class="viz-panel">
+          <div class="panel-head"><h2>Top Artists</h2></div>
+          <div id="topArtistsChart" class="chart tall"></div>
+        </article>
+
+        <article class="viz-panel">
+          <div class="panel-head"><h2>Coverage</h2></div>
+          <div id="coverageChart" class="chart"></div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="wrap">
+        Tempo and key metadata are powered by <a href="https://getsongbpm.com/" target="_blank" rel="noreferrer">GetSongBPM</a> plus manual Tunebat lookups for songs that could not be matched cleanly through the API.
+      </div>
+    </footer>
+
+    <div id="bubbleTooltip" class="bubble-tooltip" role="status"></div>
+  </body>
+</html>

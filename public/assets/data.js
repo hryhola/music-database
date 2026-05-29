@@ -1,6 +1,7 @@
 (function () {
-  const DATA_URL = "data/music_catalog.csv";
-  const MANIFEST_URL = "data/music_catalog_manifest.json";
+  const SCRIPT_URL = new URL(document.currentScript.src);
+  const DATA_URL = new URL("../data/music_catalog.csv", SCRIPT_URL).href;
+  const MANIFEST_URL = new URL("../data/music_catalog_manifest.json", SCRIPT_URL).href;
   const KEY_ORDER = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
   const EXPORT_FIELDS = [
     "source_position",
