@@ -1,6 +1,11 @@
+import sys
 import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from fetch_getsongbpm_keys import choose_match, comparable, mode_from_key, output_row, query_variants, score_song
+from key_normalization import normalize_key_fields, normalize_key_mode
 
 
 def source_row(**overrides):
@@ -71,10 +76,23 @@ class FetchGetSongBpmKeysTest(unittest.TestCase):
         self.assertEqual(mode_from_key("C"), "major")
         self.assertEqual(mode_from_key("C major"), "major")
 
+    def test_normalize_key_mode_uses_canonical_pitch_classes(self):
+        self.assertEqual(normalize_key_mode("Bb major"), ("A#", "major"))
+        self.assertEqual(normalize_key_mode("A♯ minor"), ("A#", "minor"))
+        self.assertEqual(normalize_key_mode("F# minor"), ("F#", "minor"))
+        self.assertEqual(normalize_key_mode("F♯m"), ("F#", "minor"))
+        self.assertEqual(normalize_key_mode("C"), ("C", "major"))
+
+    def test_normalize_key_fields_moves_embedded_tempo(self):
+        normalized = normalize_key_fields("Cm 84", tempo="")
+        self.assertEqual(normalized.key_of, "C")
+        self.assertEqual(normalized.mode, "minor")
+        self.assertEqual(normalized.tempo, "84")
+
     def test_output_row_contains_key_and_mode(self):
         match = choose_match(source_row(), [song()], 0.86)
         row = output_row(source_row(), match)
-        self.assertEqual(row["key_of"], "Em")
+        self.assertEqual(row["key_of"], "E")
         self.assertEqual(row["mode"], "minor")
         self.assertEqual(row["tempo"], "220")
 

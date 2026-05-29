@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-05-29T14:17:49.556240+00:00",
+  "primary_csv": "music_catalog.csv",
+  "total_rows": 1995,
+  "rows_with_key": 1171,
+  "rows_with_metadata": 1192,
+  "match_statuses": {
+    "manual_accept": 72,
+    "manual_accept_broader": 58,
+    "manual_entry": 281,
+    "matched": 781,
+    "missing": 803
+  },
+  "miss_reasons": {
+    "manual_reject": 4,
+    "manual_reject_broader": 136,
+    "not_found": 663
+  }
+}

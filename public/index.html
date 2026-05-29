@@ -232,14 +232,14 @@
             <tr>
               <th class="artist">Artist</th>
               <th class="title">Title</th>
-              <th class="meta">Key / BPM</th>
+              <th class="meta">Key / Mode / BPM</th>
               <th class="album">Album</th>
               <th class="source">Source</th>
               <th class="meta">Match</th>
             </tr>
           </thead>
           <tbody id="rows">
-            <tr><td colspan="5" class="empty">Loading data...</td></tr>
+            <tr><td colspan="6" class="empty">Loading data...</td></tr>
           </tbody>
         </table>
       </section>
@@ -252,11 +252,9 @@
     </footer>
 
     <script>
-      const DATA_URL = "data/normalized_liked_songs.csv";
-      const KEYS_URL = "data/song_keys_getsongbpm.csv";
-      const MANIFEST_URL = "data/normalization_manifest.json";
+      const DATA_URL = "data/music_catalog.csv";
+      const MANIFEST_URL = "data/music_catalog_manifest.json";
       let songs = [];
-      let keyRows = [];
       let manifest = null;
 
       function parseCsv(text) {
@@ -311,7 +309,7 @@
       function renderStats(visibleRows) {
         document.getElementById("total").textContent = songs.length.toLocaleString();
         document.getElementById("visible").textContent = visibleRows.length.toLocaleString();
-        document.getElementById("matched").textContent = songs.filter((song) => song.key_of).length.toLocaleString();
+        document.getElementById("matched").textContent = songs.filter((song) => song.key_of && song.mode).length.toLocaleString();
         document.getElementById("updated").textContent = manifest && manifest.generated_at
           ? manifest.generated_at.replace("T", " ").slice(0, 16)
           : "-";
@@ -319,7 +317,7 @@
 
       function renderReasons() {
         const select = document.getElementById("reason");
-        const reasons = [...new Set(songs.map((song) => song.decision_reason).filter(Boolean))].sort();
+        const reasons = [...new Set(songs.map((song) => song.match_reason).filter(Boolean))].sort();
         for (const reason of reasons) {
           const option = document.createElement("option");
           option.value = reason;
@@ -338,28 +336,30 @@
             song.album,
             song.original_artists,
             song.original_title,
-            song.video_type
+            song.match_status,
+            song.match_reason
           ].join(" ").toLowerCase();
-          return (!query || haystack.includes(query)) && (!reason || song.decision_reason === reason);
+          return (!query || haystack.includes(query)) && (!reason || song.match_reason === reason);
         });
 
         renderStats(visibleRows);
 
         const body = document.getElementById("rows");
         if (!visibleRows.length) {
-          body.innerHTML = '<tr><td colspan="5" class="empty">No rows match the current filters.</td></tr>';
+          body.innerHTML = '<tr><td colspan="6" class="empty">No rows match the current filters.</td></tr>';
           return;
         }
 
         body.replaceChildren(...visibleRows.map((song) => {
           const tr = document.createElement("tr");
+          const keyLabel = song.key_of ? `${song.key_of}${song.mode ? ` ${song.mode}` : ""}` : "-";
           tr.innerHTML = `
             <td>${escapeHtml(song.normalized_artists)}</td>
             <td>${escapeHtml(song.normalized_title)}</td>
-            <td>${escapeHtml(song.key_of || "-")}<br>${escapeHtml(song.tempo ? `${song.tempo} BPM` : "")}</td>
+            <td>${escapeHtml(keyLabel)}<br>${escapeHtml(song.tempo ? `${song.tempo} BPM` : "")}</td>
             <td>${escapeHtml(song.album)}</td>
             <td><a href="${escapeAttr(song.video_url)}" target="_blank" rel="noreferrer">${escapeHtml(song.video_id)}</a></td>
-            <td>${escapeHtml(song.match_status || "missing")}<br>${escapeHtml(song.match_score || "")}</td>
+            <td>${escapeHtml(song.match_status || "missing")}<br>${escapeHtml(song.match_score || song.match_reason || "")}</td>
           `;
           return tr;
         }));
@@ -378,21 +378,13 @@
         return escapeHtml(value).replaceAll("`", "&#096;");
       }
 
-      function mergeKeyRows(baseRows, rowsWithKeys) {
-        const byVideoId = new Map(rowsWithKeys.map((row) => [row.video_id, row]));
-        return baseRows.map((song) => ({ ...song, ...(byVideoId.get(song.video_id) || {}) }));
-      }
-
       async function boot() {
-        const [csvResponse, keysResponse, manifestResponse] = await Promise.all([
+        const [csvResponse, manifestResponse] = await Promise.all([
           fetch(DATA_URL),
-          fetch(KEYS_URL).catch(() => null),
           fetch(MANIFEST_URL).catch(() => null)
         ]);
 
-        const normalizedRows = parseCsv(await csvResponse.text());
-        keyRows = keysResponse && keysResponse.ok ? parseCsv(await keysResponse.text()) : [];
-        songs = mergeKeyRows(normalizedRows, keyRows);
+        songs = parseCsv(await csvResponse.text());
         manifest = manifestResponse && manifestResponse.ok ? await manifestResponse.json() : null;
         renderReasons();
         renderRows();

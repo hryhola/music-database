@@ -20,12 +20,14 @@ from urllib.parse import quote_plus
 
 import requests
 
+from key_normalization import normalize_key_fields, normalize_key_mode
+
 
 BASE_URL = "https://api.getsong.co"
 API_KEY_ENV = "GETSONGBPM_API_KEY"
-DEFAULT_INPUT = "data/normalized_liked_songs.csv"
-DEFAULT_OUTPUT = "data/song_keys_getsongbpm.csv"
-DEFAULT_MISSES = "data/song_keys_getsongbpm_misses.csv"
+DEFAULT_INPUT = "data/source/normalized_liked_songs.csv"
+DEFAULT_OUTPUT = "data/work/getsongbpm_matches.csv"
+DEFAULT_MISSES = "data/work/getsongbpm_misses.csv"
 DEFAULT_CACHE_DIR = ".cache/getsongbpm"
 DEFAULT_LIMIT = 5
 DEFAULT_MATCH_THRESHOLD = 0.86
@@ -307,30 +309,23 @@ def choose_match(row: dict[str, str], songs: list[dict[str, Any]], threshold: fl
 
 
 def mode_from_key(key_of: str) -> str:
-    key = compact(key_of)
-    if not key:
-        return ""
-    lowered = key.casefold()
-    if lowered.endswith("m") or lowered.endswith(" minor"):
-        return "minor"
-    if lowered.endswith(" major"):
-        return "major"
-    return "major"
+    return normalize_key_mode(key_of)[1]
 
 
 def output_row(row: dict[str, str], match: Match) -> dict[str, Any]:
     song = match.song or {}
     key_of = str(song.get("key_of", "") or "")
+    normalized_key = normalize_key_fields(key_of, tempo=song.get("tempo", ""))
     return {
         **{field: row.get(field, "") for field in OUTPUT_FIELDS if field in row},
         "getsongbpm_song_id": song.get("id", ""),
         "getsongbpm_title": song.get("title", ""),
         "getsongbpm_artist": artist_name(song),
         "getsongbpm_uri": song.get("uri", ""),
-        "tempo": song.get("tempo", ""),
+        "tempo": normalized_key.tempo,
         "time_sig": song.get("time_sig", ""),
-        "key_of": key_of,
-        "mode": mode_from_key(key_of),
+        "key_of": normalized_key.key_of,
+        "mode": normalized_key.mode,
         "open_key": song.get("open_key", ""),
         "danceability": song.get("danceability", ""),
         "acousticness": song.get("acousticness", ""),

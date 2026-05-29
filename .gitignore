@@ -2,5 +2,13 @@
 .env
 .venv/
 .cache/
+.playwright-mcp/
+.claude/
 node_modules/
 __pycache__/
+**/__pycache__/
+*.py[cod]
+*.log
+.getsongbpm_review.pid
+.getsongbpm_review.log
+data/review/*pending*

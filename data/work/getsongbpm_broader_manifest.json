@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-05-29T10:29:34.512106+00:00",
+  "input": "data/song_keys_getsongbpm_miss_filter_selected.csv",
+  "input_count": 840,
+  "candidate_rows": 1274,
+  "sources_with_candidates": 475,
+  "sources_without_candidates": 365,
+  "top_n": 3,
+  "min_score": 0.55,
+  "limit": 10,
+  "uncached_calls": 0,
+  "include_truncated": true,
+  "truncated_min_words": 4
+}

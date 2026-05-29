@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-05-29T10:29:27.934605+00:00",
+  "normalized_rows": 1995,
+  "matched_rows": 1192,
+  "miss_rows": 803,
+  "match_statuses": {
+    "manual_accept": 72,
+    "manual_accept_broader": 58,
+    "manual_entry": 281,
+    "matched": 781
+  },
+  "miss_reasons": {
+    "manual_reject": 4,
+    "manual_reject_broader": 136,
+    "not_found": 663
+  },
+  "manual_decisions": 76,
+  "manual_accepts": 72,
+  "manual_rejects": 4,
+  "broader_decisions": 475,
+  "broader_accepts": 58,
+  "broader_rejects": 136,
+  "broader_manual_entries": 281,
+  "key_normalized_at": "2026-05-29T10:29:38.520434+00:00",
+  "key_normalized_rows": 1192,
+  "key_normalized_changed_rows": 0,
+  "key_normalized_missing_key_rows": 21
+}
