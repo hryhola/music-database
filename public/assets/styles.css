@@ -219,7 +219,7 @@ h2 {
 }
 
 .primary-controls {
-  grid-template-columns: minmax(220px, 2fr) minmax(160px, 1fr) auto auto;
+  grid-template-columns: minmax(220px, 2fr) minmax(150px, 1fr) minmax(92px, 0.45fr) auto auto;
   margin-bottom: 14px;
 }
 
@@ -230,6 +230,10 @@ h2 {
 
 .span-2 {
   grid-column: span 1;
+}
+
+.compact-field {
+  min-width: 92px;
 }
 
 .field {
@@ -427,6 +431,17 @@ fieldset {
 .tabulator .tabulator-footer {
   border-color: var(--line);
   background: #161b19;
+}
+
+.tabulator .tabulator-footer .tabulator-footer-contents {
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+}
+
+.tabulator .tabulator-footer .tabulator-page-counter {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .tabulator .tabulator-footer .tabulator-page {

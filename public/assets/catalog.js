@@ -6,11 +6,13 @@
     bpmTarget: "",
     bpmMargin: "0",
     group: "",
+    pageSize: window.matchMedia("(max-width: 720px)").matches ? "50" : "100",
   };
 
   let table = null;
   let rows = [];
   let manifest = null;
+  let filterTimer = null;
 
   function el(id) {
     return document.getElementById(id);
@@ -108,6 +110,26 @@
     table.setGroupBy(state.group ? groupValue : false);
   }
 
+  function scheduleTableState() {
+    window.clearTimeout(filterTimer);
+    filterTimer = window.setTimeout(applyTableState, 120);
+  }
+
+  function resolvedPageSize() {
+    if (state.pageSize === "all") {
+      return Math.max(rows.length, 1);
+    }
+    const parsed = Number(state.pageSize);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+  }
+
+  function applyPageSize() {
+    if (!table) {
+      return;
+    }
+    table.setPageSize(resolvedPageSize());
+  }
+
   function updateMetrics(activeRows) {
     const visibleRows = activeRows ? activeRows.map((row) => row.getData()) : table.getData("active");
     setText("totalCount", MusicData.formatNumber(rows.length));
@@ -200,6 +222,10 @@
       layout: "fitColumns",
       placeholder: "No rows match the current filters.",
       initialSort: [{ column: "source_position", dir: "asc" }],
+      pagination: true,
+      paginationMode: "local",
+      paginationSize: resolvedPageSize(),
+      paginationCounter: "rows",
       groupHeader: (value, count) => `${MusicData.escapeHtml(value)} <span class="muted">(${count})</span>`,
       columns: [
         { title: "Artist", field: "normalized_artists", minWidth: 160, formatter: textFormatter("normalized_artists") },
@@ -229,14 +255,17 @@
     table.on("dataLoaded", () => updateMetrics());
     table.on("tableBuilt", () => {
       applyTableState();
+      applyPageSize();
       updateMetrics();
     });
   }
 
   function setupControls() {
+    el("pageSizeSelect").value = state.pageSize;
+
     el("searchInput").addEventListener("input", (event) => {
       state.query = event.target.value.trim().toLowerCase();
-      applyTableState();
+      scheduleTableState();
     });
 
     el("groupSelect").addEventListener("change", (event) => {
@@ -244,14 +273,19 @@
       applyTableState();
     });
 
+    el("pageSizeSelect").addEventListener("change", (event) => {
+      state.pageSize = event.target.value;
+      applyPageSize();
+    });
+
     el("bpmTarget").addEventListener("input", (event) => {
       state.bpmTarget = event.target.value.trim();
-      applyTableState();
+      scheduleTableState();
     });
 
     el("bpmMargin").addEventListener("input", (event) => {
       state.bpmMargin = event.target.value.trim();
-      applyTableState();
+      scheduleTableState();
     });
 
     el("modeFilter").addEventListener("click", (event) => {
